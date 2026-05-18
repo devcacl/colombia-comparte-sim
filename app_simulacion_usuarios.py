@@ -8,15 +8,21 @@ import plotly.graph_objects as go
 import streamlit as st
 
 
-PRIMARY = "#0033A0"
-SECONDARY = "#FCD116"
-ACCENT = "#CE1126"
-GREEN = "#2E7D32"
-ORANGE = "#E65100"
-RED = "#B71C1C"
-INK = "#172033"
+LOGO_PATH = "assets/colombia-comparte.png"
+
+PRIMARY = "#1F3772"
+SECONDARY = "#00B5B5"
+ACCENT = "#F39200"
+MAGENTA = "#E72F63"
+PURPLE = "#7B0C83"
+GREEN = "#00B5B5"
+ORANGE = "#F39200"
+RED = "#E72F63"
+INK = "#2D2D2D"
 MUTED = "#667085"
-SURFACE = "#F6F8FC"
+SURFACE = "#F8F9FA"
+CARD = "#FFFFFF"
+BORDER = "#DDE5ED"
 
 
 ESTADOS_INFO: Dict[str, str] = {
@@ -142,48 +148,131 @@ def inject_css() -> None:
     st.markdown(
         f"""
         <style>
+            @import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap');
+
+            html, body, [class*="css"] {{
+                font-family: "Inter", "Segoe UI", sans-serif;
+            }}
             .stApp {{
-                background: linear-gradient(180deg, #ffffff 0%, {SURFACE} 100%);
+                background:
+                    radial-gradient(circle at top right, rgba(0, 181, 181, .10), transparent 30rem),
+                    linear-gradient(180deg, #ffffff 0%, {SURFACE} 52%, #EEF3F7 100%);
                 color: {INK};
             }}
+            .block-container {{
+                padding-top: 1.25rem;
+                padding-bottom: 2.5rem;
+            }}
             [data-testid="stSidebar"] {{
-                background: linear-gradient(180deg, {PRIMARY} 0%, #061B55 100%);
+                background: linear-gradient(180deg, {PRIMARY} 0%, #142754 100%);
+                border-right: 1px solid rgba(255,255,255,.12);
             }}
             [data-testid="stSidebar"] * {{
                 color: #ffffff !important;
+            }}
+            [data-testid="stSidebar"] img {{
+                background: rgba(255,255,255,.96);
+                border-radius: 8px;
+                padding: .45rem;
+                margin-bottom: .55rem;
+            }}
+            [data-testid="stSidebar"] [data-testid="stSlider"] {{
+                padding: .25rem 0 .6rem 0;
             }}
             h1, h2, h3 {{
                 color: {INK};
                 letter-spacing: 0;
             }}
+            h2, h3 {{
+                font-weight: 800;
+            }}
             .hero {{
-                background: #ffffff;
-                border-left: 8px solid {SECONDARY};
+                position: relative;
+                overflow: hidden;
+                background:
+                    linear-gradient(135deg, rgba(31,55,114,.98), rgba(31,55,114,.88)),
+                    linear-gradient(90deg, {PRIMARY}, {SECONDARY});
                 border-radius: 8px;
-                padding: 1rem 1.25rem;
-                box-shadow: 0 10px 28px rgba(15, 23, 42, .08);
-                margin-bottom: 1rem;
+                padding: 1.35rem 1.5rem;
+                box-shadow: 0 18px 38px rgba(31, 55, 114, .18);
+                margin-bottom: 1.15rem;
+                min-height: 132px;
+            }}
+            .hero::after {{
+                content: "";
+                position: absolute;
+                right: -4.5rem;
+                top: -6rem;
+                width: 18rem;
+                height: 18rem;
+                border-radius: 50%;
+                border: 3rem solid rgba(0,181,181,.24);
+            }}
+            .hero-kicker {{
+                color: {SECONDARY};
+                font-weight: 800;
+                letter-spacing: .08em;
+                text-transform: uppercase;
+                font-size: .76rem;
             }}
             .hero h1 {{
-                margin: 0 0 .25rem 0;
-                font-size: 2rem;
+                color: #ffffff;
+                margin: .25rem 0 .35rem 0;
+                font-size: 2.1rem;
+                font-weight: 800;
             }}
             .hero p {{
                 margin: 0;
-                color: {MUTED};
+                color: rgba(255,255,255,.84);
+                max-width: 760px;
+            }}
+            .section-title {{
+                display: flex;
+                align-items: center;
+                gap: .6rem;
+                color: {PRIMARY};
+                font-size: 1.2rem;
+                font-weight: 800;
+                margin: 1.1rem 0 .6rem 0;
+            }}
+            .section-title::before {{
+                content: "";
+                width: .42rem;
+                height: 1.35rem;
+                border-radius: 999px;
+                background: linear-gradient(180deg, {SECONDARY}, {ACCENT});
+            }}
+            .app-note {{
+                background: rgba(255,255,255,.86);
+                border: 1px solid {BORDER};
+                border-left: 5px solid {SECONDARY};
+                border-radius: 8px;
+                padding: .8rem 1rem;
+                color: {INK};
+                box-shadow: 0 8px 22px rgba(31,55,114,.06);
             }}
             .metric-card {{
-                background: #ffffff;
-                border: 1px solid #E5E7EB;
+                position: relative;
+                background: {CARD};
+                border: 1px solid {BORDER};
                 border-radius: 8px;
-                padding: .95rem;
-                box-shadow: 0 8px 22px rgba(15, 23, 42, .06);
-                min-height: 108px;
+                padding: 1rem;
+                box-shadow: 0 10px 26px rgba(31, 55, 114, .08);
+                min-height: 112px;
+                overflow: hidden;
+            }}
+            .metric-card::before {{
+                content: "";
+                position: absolute;
+                inset: 0 auto 0 0;
+                width: 5px;
+                background: var(--accent-color, {SECONDARY});
             }}
             .metric-card small {{
                 color: {MUTED};
                 font-weight: 700;
                 text-transform: uppercase;
+                letter-spacing: .04em;
             }}
             .metric-card strong {{
                 display: block;
@@ -191,25 +280,49 @@ def inject_css() -> None:
                 font-size: 1.65rem;
                 margin-top: .25rem;
             }}
+            .metric-card p {{
+                margin: .35rem 0 0 0;
+                color: {MUTED};
+                font-size: .86rem;
+            }}
             .recommendation {{
-                background: #ffffff;
-                border: 1px solid #E7EEF8;
+                background:
+                    linear-gradient(180deg, rgba(255,255,255,.98), rgba(255,255,255,.92)),
+                    linear-gradient(90deg, rgba(243,146,0,.16), rgba(0,181,181,.12));
+                border: 1px solid {BORDER};
                 border-left: 8px solid {ACCENT};
                 border-radius: 8px;
                 padding: 1rem 1.2rem;
-                box-shadow: 0 8px 22px rgba(15, 23, 42, .06);
+                box-shadow: 0 12px 28px rgba(31, 55, 114, .08);
             }}
             .pill {{
                 display: inline-block;
                 border-radius: 999px;
-                padding: .22rem .58rem;
+                padding: .24rem .62rem;
                 font-weight: 700;
                 font-size: .78rem;
-                background: #EEF4FF;
+                background: rgba(0,181,181,.14);
                 color: {PRIMARY};
             }}
+            .table-shell {{
+                background: {CARD};
+                border: 1px solid {BORDER};
+                border-radius: 8px;
+                padding: .65rem;
+                box-shadow: 0 10px 26px rgba(31, 55, 114, .07);
+                margin-bottom: .9rem;
+            }}
+            .table-caption {{
+                display: flex;
+                justify-content: space-between;
+                align-items: center;
+                color: {MUTED};
+                font-size: .86rem;
+                font-weight: 600;
+                margin: 0 0 .45rem 0;
+            }}
             div[data-testid="stDataFrame"] {{
-                border: 1px solid #E5E7EB;
+                border: 1px solid {BORDER};
                 border-radius: 8px;
                 overflow: hidden;
             }}
@@ -219,11 +332,18 @@ def inject_css() -> None:
                 border: 0;
                 border-radius: 8px;
                 font-weight: 800;
+                box-shadow: 0 8px 18px rgba(31,55,114,.18);
             }}
             .stButton > button:hover {{
-                background: #061B55;
+                background: {SECONDARY};
                 color: white;
                 border: 0;
+            }}
+            .stDownloadButton > button {{
+                border-radius: 8px;
+                border-color: {SECONDARY};
+                color: {PRIMARY};
+                font-weight: 800;
             }}
         </style>
         """,
@@ -403,10 +523,99 @@ def recomendacion_estado_critico(estado_critico: str) -> str:
     )
 
 
+def section_title(title: str) -> None:
+    st.markdown(f'<div class="section-title">{title}</div>', unsafe_allow_html=True)
+
+
+def plot_layout(fig: go.Figure, height: int | None = None) -> go.Figure:
+    fig.update_layout(
+        font=dict(family="Inter, Segoe UI, sans-serif", color=INK),
+        title=dict(font=dict(color=PRIMARY, size=18), x=0.02),
+        plot_bgcolor=CARD,
+        paper_bgcolor=CARD,
+        margin=dict(l=24, r=24, t=62, b=28),
+        legend=dict(orientation="h", yanchor="bottom", y=1.02, xanchor="right", x=1),
+        hoverlabel=dict(bgcolor=PRIMARY, font_color="white", bordercolor=PRIMARY),
+        height=height,
+    )
+    fig.update_xaxes(showgrid=False, zeroline=False, linecolor=BORDER, tickfont=dict(color=MUTED))
+    fig.update_yaxes(gridcolor="#EAF0F4", zeroline=False, linecolor=BORDER, tickfont=dict(color=MUTED))
+    return fig
+
+
+def result_color(value: str) -> str:
+    colors = {
+        "Éxito": GREEN,
+        "Abandono": ORANGE,
+        "Error": RED,
+        "inicial": PRIMARY,
+        "intermedio": "#8B97A8",
+        "final exitoso": GREEN,
+        "final negativo": ORANGE,
+        "seguimiento": SECONDARY,
+        "error": RED,
+    }
+    return colors.get(value, PRIMARY)
+
+
+def styled_table(df: pd.DataFrame, compact: bool = False):
+    def paint_status(value):
+        if value in {"Éxito", "Abandono", "Error", "inicial", "intermedio", "final exitoso", "final negativo", "seguimiento", "error"}:
+            return f"background-color: {result_color(value)}1A; color: {result_color(value)}; font-weight: 800;"
+        return ""
+
+    styler = (
+        df.style.map(paint_status)
+        .set_properties(
+            **{
+                "border-color": BORDER,
+                "color": INK,
+                "font-size": "12px" if compact else "13px",
+            }
+        )
+        .set_table_styles(
+            [
+                {
+                    "selector": "th",
+                    "props": [
+                        ("background-color", PRIMARY),
+                        ("color", "white"),
+                        ("font-weight", "800"),
+                        ("border-color", PRIMARY),
+                    ],
+                },
+                {
+                    "selector": "td",
+                    "props": [
+                        ("border-color", "#EEF2F6"),
+                    ],
+                },
+            ]
+        )
+    )
+    return styler
+
+
+def render_table(title: str, df: pd.DataFrame, caption: str = "", compact: bool = False) -> None:
+    st.markdown(
+        f"""
+        <div class="table-shell">
+            <div class="table-caption">
+                <span>{title}</span>
+                <span>{caption}</span>
+            </div>
+        """,
+        unsafe_allow_html=True,
+    )
+    st.dataframe(styled_table(df, compact=compact), use_container_width=True, hide_index=True)
+    st.markdown("</div>", unsafe_allow_html=True)
+
+
 def render_header() -> None:
     st.markdown(
         """
         <div class="hero">
+            <div class="hero-kicker">Colombia Comparte</div>
             <h1>Simulación – Colombia Comparte</h1>
             <p>Flujo de registro de emprendedores con cadenas de Márkov, basado únicamente en el cuaderno original.</p>
         </div>
@@ -415,12 +624,13 @@ def render_header() -> None:
     )
 
 
-def render_metric(label: str, value: str) -> None:
+def render_metric(label: str, value: str, accent_color: str = SECONDARY, note: str = "") -> None:
     st.markdown(
         f"""
-        <div class="metric-card">
+        <div class="metric-card" style="--accent-color:{accent_color};">
             <small>{label}</small>
             <strong>{value}</strong>
+            <p>{note}</p>
         </div>
         """,
         unsafe_allow_html=True,
@@ -431,15 +641,15 @@ def render_dashboard(df_resultados: pd.DataFrame) -> None:
     kpis = calcular_kpis(df_resultados)
     col1, col2, col3, col4, col5 = st.columns(5)
     with col1:
-        render_metric("Éxito", f"{kpis['Éxito']:.1f}%")
+        render_metric("Éxito", f"{kpis['Éxito']:.1f}%", GREEN, "Usuarios que completaron el registro")
     with col2:
-        render_metric("Abandono", f"{kpis['Abandono']:.1f}%")
+        render_metric("Abandono", f"{kpis['Abandono']:.1f}%", ORANGE, "Salidas antes de completar el flujo")
     with col3:
-        render_metric("Error", f"{kpis['Error']:.1f}%")
+        render_metric("Error", f"{kpis['Error']:.1f}%", RED, "Timeouts o fallo definitivo")
     with col4:
-        render_metric("Seguimiento pendiente", f"{kpis['Seguimiento pendiente']:.1f}%")
+        render_metric("Seguimiento pendiente", f"{kpis['Seguimiento pendiente']:.1f}%", SECONDARY, "Usuarios que pasaron por soporte o apoyo")
     with col5:
-        render_metric("Promedio de pasos", f"{kpis['Promedio de pasos']:.2f}")
+        render_metric("Promedio de pasos", f"{kpis['Promedio de pasos']:.2f}", PRIMARY, "Longitud media del recorrido")
 
     conteos = df_resultados["categoria"].value_counts().reset_index()
     conteos.columns = ["Categoría", "Usuarios"]
@@ -456,8 +666,9 @@ def render_dashboard(df_resultados: pd.DataFrame) -> None:
             color_discrete_map=colors,
             title="Resultados generales de la simulación",
         )
-        fig.update_traces(textposition="outside", marker_line_width=0)
-        fig.update_layout(showlegend=False, plot_bgcolor="white", paper_bgcolor="white", margin=dict(l=20, r=20, t=55, b=20))
+        fig.update_traces(textposition="outside", marker_line_width=0, marker_cornerradius=6)
+        plot_layout(fig, height=390)
+        fig.update_layout(showlegend=False)
         st.plotly_chart(fig, use_container_width=True)
 
     with col_b:
@@ -470,7 +681,9 @@ def render_dashboard(df_resultados: pd.DataFrame) -> None:
             color_discrete_map=colors,
             title="Distribución porcentual",
         )
-        fig.update_layout(plot_bgcolor="white", paper_bgcolor="white", margin=dict(l=20, r=20, t=55, b=20))
+        fig.update_traces(textfont_color="white", textfont_size=13, marker=dict(line=dict(color="white", width=3)))
+        plot_layout(fig, height=390)
+        fig.update_layout(showlegend=True)
         st.plotly_chart(fig, use_container_width=True)
 
     fig_steps = px.histogram(
@@ -483,32 +696,36 @@ def render_dashboard(df_resultados: pd.DataFrame) -> None:
         labels={"num_pasos": "Número de pasos", "categoria": "Categoría"},
     )
     fig_steps.add_vline(x=kpis["Promedio de pasos"], line_dash="dash", line_color=PRIMARY)
-    fig_steps.update_layout(plot_bgcolor="white", paper_bgcolor="white", margin=dict(l=20, r=20, t=55, b=20))
+    plot_layout(fig_steps, height=410)
     st.plotly_chart(fig_steps, use_container_width=True)
 
 
 def render_modelo(matriz_conteos: pd.DataFrame, matriz_prob: pd.DataFrame) -> None:
-    st.subheader("Estados del modelo")
-    st.dataframe(estados_dataframe(), use_container_width=True, hide_index=True)
+    section_title("Estados del modelo")
+    render_table("Estados definidos por el grupo", estados_dataframe(), f"{len(ESTADOS)} estados")
 
-    st.subheader("Recorridos base de usuarios")
-    st.dataframe(recorridos_dataframe(), use_container_width=True, hide_index=True)
+    section_title("Recorridos base de usuarios")
+    render_table("Caminos realistas del flujo", recorridos_dataframe(), f"{len(RECORRIDOS)} recorridos", compact=True)
 
     col1, col2 = st.columns(2)
     with col1:
-        st.subheader("Matriz de conteos")
-        st.dataframe(matriz_conteos, use_container_width=True)
+        section_title("Matriz de conteos")
+        st.markdown('<div class="table-shell"><div class="table-caption"><span>Transiciones observadas</span><span>conteos</span></div>', unsafe_allow_html=True)
+        st.dataframe(matriz_conteos.style.background_gradient(cmap="Blues", axis=None), use_container_width=True)
+        st.markdown("</div>", unsafe_allow_html=True)
     with col2:
-        st.subheader("Matriz de probabilidades")
-        st.dataframe(matriz_prob.style.format("{:.2%}"), use_container_width=True)
+        section_title("Matriz de probabilidades")
+        st.markdown('<div class="table-shell"><div class="table-caption"><span>Probabilidad por transición</span><span>porcentaje</span></div>', unsafe_allow_html=True)
+        st.dataframe(matriz_prob.style.format("{:.2%}").background_gradient(cmap="YlGnBu", axis=None), use_container_width=True)
+        st.markdown("</div>", unsafe_allow_html=True)
 
 
 def render_simulacion(df_resultados: pd.DataFrame) -> None:
-    st.subheader("Vista previa de la simulación")
-    st.dataframe(df_resultados.head(12), use_container_width=True, hide_index=True)
+    section_title("Vista previa de la simulación")
+    render_table("Primeros usuarios simulados", df_resultados.head(12), "muestra", compact=True)
 
-    st.subheader("Resultados completos")
-    st.dataframe(df_resultados, use_container_width=True, hide_index=True)
+    section_title("Resultados completos")
+    render_table("Tabla completa de usuarios simulados", df_resultados, f"{len(df_resultados)} usuarios", compact=True)
     st.download_button(
         "Descargar resultados CSV",
         data=df_resultados.to_csv(index=False).encode("utf-8-sig"),
@@ -519,14 +736,14 @@ def render_simulacion(df_resultados: pd.DataFrame) -> None:
 
 
 def render_mejora(df_resultados: pd.DataFrame, matriz_prob: pd.DataFrame, n_usuarios: int, max_pasos: int, seed: int) -> None:
-    st.subheader("Estado crítico y propuesta de mejora")
+    section_title("Estado crítico y propuesta de mejora")
     estado_critico, n_critico, dist = detectar_estado_critico(df_resultados)
 
     col1, col2 = st.columns([0.8, 1.2])
     with col1:
         st.markdown(
             f"""
-            <div class="metric-card">
+            <div class="metric-card" style="--accent-color:{ACCENT};">
                 <small>Estado más crítico</small>
                 <strong style="font-size:1.18rem">{estado_critico}</strong>
                 <p style="color:{MUTED}; margin:.5rem 0 0 0;">Usuarios no exitosos en este estado: {n_critico}</p>
@@ -546,9 +763,9 @@ def render_mejora(df_resultados: pd.DataFrame, matriz_prob: pd.DataFrame, n_usua
         )
 
     if not dist.empty:
-        st.dataframe(dist, use_container_width=True, hide_index=True)
+        render_table("Distribución de estados no exitosos", dist, "riesgo", compact=True)
 
-    st.subheader("Escenario mejorado del cuaderno")
+    section_title("Escenario mejorado del cuaderno")
     matriz_mejorada = aplicar_mejoras(matriz_prob)
     df_mejorado = ejecutar_simulacion(n_usuarios, max_pasos, seed + 1, matriz_mejorada)
     base = df_resultados["categoria"].value_counts().rename("Antes")
@@ -556,18 +773,16 @@ def render_mejora(df_resultados: pd.DataFrame, matriz_prob: pd.DataFrame, n_usua
     comparativa = pd.concat([base, mejorado], axis=1).fillna(0).astype(int).reset_index()
     comparativa.columns = ["Categoría", "Antes", "Después"]
     comparativa["Diferencia"] = comparativa["Después"] - comparativa["Antes"]
-    st.dataframe(comparativa, use_container_width=True, hide_index=True)
+    render_table("Comparativa de resultados", comparativa, "antes vs. después", compact=True)
 
     fig = go.Figure()
-    fig.add_trace(go.Bar(name="Antes", x=comparativa["Categoría"], y=comparativa["Antes"], marker_color=PRIMARY))
-    fig.add_trace(go.Bar(name="Después", x=comparativa["Categoría"], y=comparativa["Después"], marker_color=SECONDARY))
+    fig.add_trace(go.Bar(name="Antes", x=comparativa["Categoría"], y=comparativa["Antes"], marker_color=PRIMARY, marker_line_width=0))
+    fig.add_trace(go.Bar(name="Después", x=comparativa["Categoría"], y=comparativa["Después"], marker_color=SECONDARY, marker_line_width=0))
     fig.update_layout(
         barmode="group",
         title="Comparativa antes vs. después de las mejoras",
-        plot_bgcolor="white",
-        paper_bgcolor="white",
-        margin=dict(l=20, r=20, t=55, b=20),
     )
+    plot_layout(fig, height=410)
     st.plotly_chart(fig, use_container_width=True)
 
 
@@ -579,6 +794,7 @@ def main() -> None:
     matriz_prob = construir_matriz_probabilidades(matriz_conteos)
 
     with st.sidebar:
+        st.image(LOGO_PATH, use_container_width=True)
         st.markdown("## Colombia Comparte")
         st.caption("Flujo: Registro de emprendedores")
         n_usuarios = st.slider("Número de usuarios a simular", 10, 5000, 1000, step=10)
@@ -599,13 +815,19 @@ def main() -> None:
 
     df_resultados = st.session_state.df_resultados
     config = st.session_state.config
-    st.info(
-        f"Configuración actual: {config['usuarios']} usuarios, "
-        f"{config['max_pasos']} pasos máximos, semilla {config['seed']}. "
-        f"Modelo base: {len(ESTADOS)} estados y {len(RECORRIDOS)} recorridos."
+    st.markdown(
+        f"""
+        <div class="app-note">
+            <strong>Configuración actual:</strong> {config['usuarios']} usuarios,
+            {config['max_pasos']} pasos máximos, semilla {config['seed']}.
+            <strong>Modelo base:</strong> {len(ESTADOS)} estados y {len(RECORRIDOS)} recorridos.
+        </div>
+        """,
+        unsafe_allow_html=True,
     )
 
     if seccion == "Dashboard":
+        section_title("Dashboard de resultados")
         render_dashboard(df_resultados)
     elif seccion == "Modelo":
         render_modelo(matriz_conteos, matriz_prob)
