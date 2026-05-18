@@ -164,16 +164,39 @@ def inject_css() -> None:
                 padding-bottom: 2.5rem;
             }}
             [data-testid="stSidebar"] {{
+                position: relative;
                 background: linear-gradient(180deg, {PRIMARY} 0%, #142754 100%);
                 border-right: 1px solid rgba(255,255,255,.12);
             }}
             [data-testid="stSidebar"] * {{
                 color: #ffffff !important;
             }}
+            .sidebar-footer {{
+                position: absolute;
+                left: 0;
+                right: 0;
+                bottom: 1rem;
+                text-align: center;
+                padding: 0 1rem;
+                font-size: 0.85rem;
+                color: rgba(255,255,255,.85);
+            }}
+            /* Force primary color for form controls inside the sidebar (override global white) */
+            [data-testid="stSidebar"] input,
+            [data-testid="stSidebar"] input[type="number"],
+            [data-testid="stSidebar"] textarea,
+            [data-testid="stSidebar"] select {{
+                color: {PRIMARY} !important;
+                background: transparent !important;
+            }}
+            [data-testid="stSidebar"] input::placeholder,
+            [data-testid="stSidebar"] textarea::placeholder {{
+                color: rgba(31,55,114,.6) !important;
+            }}
             [data-testid="stSidebar"] img {{
-                background: rgba(255,255,255,.96);
+                background: transparent;
                 border-radius: 8px;
-                padding: .45rem;
+                padding: 0;
                 margin-bottom: .55rem;
             }}
             [data-testid="stSidebar"] [data-testid="stSlider"] {{
@@ -258,7 +281,10 @@ def inject_css() -> None:
                 border-radius: 8px;
                 padding: 1rem;
                 box-shadow: 0 10px 26px rgba(31, 55, 114, .08);
-                min-height: 112px;
+                min-height: 170px;
+                display: flex;
+                flex-direction: column;
+                justify-content: space-between;
                 overflow: hidden;
             }}
             .metric-card::before {{
@@ -327,15 +353,18 @@ def inject_css() -> None:
                 overflow: hidden;
             }}
             .stButton > button {{
-                background: {PRIMARY};
+                background: {SECONDARY};
                 color: white;
                 border: 0;
                 border-radius: 8px;
                 font-weight: 800;
                 box-shadow: 0 8px 18px rgba(31,55,114,.18);
+                padding: .9rem 1rem;
+                min-height: 3rem;
+                text-align: center;
             }}
             .stButton > button:hover {{
-                background: {SECONDARY};
+                background: {ACCENT};
                 color: white;
                 border: 0;
             }}
@@ -689,11 +718,13 @@ def render_dashboard(df_resultados: pd.DataFrame) -> None:
     with col2:
         render_metric("Abandono", f"{kpis['Abandono']:.1f}%", ORANGE, "Salidas antes de completar el flujo")
     with col3:
-        render_metric("Error", f"{kpis['Error']:.1f}%", RED, "Timeouts o fallo definitivo")
+        render_metric("Error", f"{kpis['Error']:.1f}%", RED, "Timeouts o fallo definitivo                                   ")
     with col4:
-        render_metric("Seguimiento pendiente", f"{kpis['Seguimiento pendiente']:.1f}%", SECONDARY, "Usuarios que pasaron por soporte o apoyo")
+        render_metric("Seguimiento Pendiente", f"{kpis['Seguimiento pendiente']:.1f}%", SECONDARY, "Usuarios que pasaron por soporte o apoyo")
     with col5:
         render_metric("Promedio de pasos", f"{kpis['Promedio de pasos']:.2f}", PRIMARY, "Longitud media del recorrido")
+
+    st.markdown("<div style='height:1.5rem'></div>", unsafe_allow_html=True)
 
     conteos = df_resultados["categoria"].value_counts().reset_index()
     conteos.columns = ["Categoría", "Usuarios"]
@@ -837,6 +868,9 @@ def main() -> None:
     matriz_conteos = construir_matriz_conteos()
     matriz_prob = construir_matriz_probabilidades(matriz_conteos)
 
+    if "seccion" not in st.session_state:
+        st.session_state.seccion = "Dashboard"
+
     with st.sidebar:
         st.image(LOGO_PATH, width="stretch")
         st.markdown("## Colombia Comparte")
@@ -847,9 +881,21 @@ def main() -> None:
         ejecutar = st.button("Ejecutar simulación", width="stretch")
 
         st.markdown("---")
-        seccion = st.radio("Barra de navegación", ["Dashboard", "Modelo", "Simulación", "Mejora"], index=0)
+        if st.button("Dashboard", key="sidebar_dashboard", width="stretch"):
+            st.session_state.seccion = "Dashboard"
+        if st.button("Modelo", key="sidebar_modelo", width="stretch"):
+            st.session_state.seccion = "Modelo"
+        if st.button("Simulación", key="sidebar_simulacion", width="stretch"):
+            st.session_state.seccion = "Simulación"
+        if st.button("Mejora", key="sidebar_mejora", width="stretch"):
+            st.session_state.seccion = "Mejora"
         st.markdown("---")
-        st.caption("Datos tomados del notebook original ProyectoFinalSimulacion.ipynb.")
+        st.markdown(
+            '<div class="sidebar-footer">Datos tomados del notebook original ProyectoFinalSimulacion.ipynb.</div>',
+            unsafe_allow_html=True,
+        )
+
+    seccion = st.session_state.seccion
 
     render_header()
 
