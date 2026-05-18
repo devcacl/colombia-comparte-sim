@@ -596,6 +596,50 @@ def styled_table(df: pd.DataFrame, compact: bool = False):
     return styler
 
 
+def styled_numeric_matrix(df: pd.DataFrame, percent: bool = False):
+    max_value = float(df.to_numpy().max()) if not df.empty else 0.0
+
+    def paint_number(value):
+        try:
+            numeric = float(value)
+        except (TypeError, ValueError):
+            return ""
+        if numeric <= 0 or max_value <= 0:
+            return "background-color: #FFFFFF; color: #98A2B3;"
+        intensity = min(numeric / max_value, 1)
+        alpha = 0.10 + intensity * 0.42
+        return (
+            f"background-color: rgba(0, 181, 181, {alpha:.2f}); "
+            f"color: {PRIMARY}; font-weight: 800;"
+        )
+
+    styler = (
+        df.style.format("{:.2%}" if percent else "{:.0f}")
+        .map(paint_number)
+        .set_properties(
+            **{
+                "border-color": "#EEF2F6",
+                "font-size": "12px",
+                "text-align": "center",
+            }
+        )
+        .set_table_styles(
+            [
+                {
+                    "selector": "th",
+                    "props": [
+                        ("background-color", PRIMARY),
+                        ("color", "white"),
+                        ("font-weight", "800"),
+                        ("border-color", PRIMARY),
+                    ],
+                }
+            ]
+        )
+    )
+    return styler
+
+
 def render_table(title: str, df: pd.DataFrame, caption: str = "", compact: bool = False) -> None:
     st.markdown(
         f"""
@@ -607,7 +651,7 @@ def render_table(title: str, df: pd.DataFrame, caption: str = "", compact: bool 
         """,
         unsafe_allow_html=True,
     )
-    st.dataframe(styled_table(df, compact=compact), use_container_width=True, hide_index=True)
+    st.dataframe(styled_table(df, compact=compact), width="stretch", hide_index=True)
     st.markdown("</div>", unsafe_allow_html=True)
 
 
@@ -669,7 +713,7 @@ def render_dashboard(df_resultados: pd.DataFrame) -> None:
         fig.update_traces(textposition="outside", marker_line_width=0, marker_cornerradius=6)
         plot_layout(fig, height=390)
         fig.update_layout(showlegend=False)
-        st.plotly_chart(fig, use_container_width=True)
+        st.plotly_chart(fig, width="stretch")
 
     with col_b:
         fig = px.pie(
@@ -684,7 +728,7 @@ def render_dashboard(df_resultados: pd.DataFrame) -> None:
         fig.update_traces(textfont_color="white", textfont_size=13, marker=dict(line=dict(color="white", width=3)))
         plot_layout(fig, height=390)
         fig.update_layout(showlegend=True)
-        st.plotly_chart(fig, use_container_width=True)
+        st.plotly_chart(fig, width="stretch")
 
     fig_steps = px.histogram(
         df_resultados,
@@ -697,7 +741,7 @@ def render_dashboard(df_resultados: pd.DataFrame) -> None:
     )
     fig_steps.add_vline(x=kpis["Promedio de pasos"], line_dash="dash", line_color=PRIMARY)
     plot_layout(fig_steps, height=410)
-    st.plotly_chart(fig_steps, use_container_width=True)
+    st.plotly_chart(fig_steps, width="stretch")
 
 
 def render_modelo(matriz_conteos: pd.DataFrame, matriz_prob: pd.DataFrame) -> None:
@@ -711,12 +755,12 @@ def render_modelo(matriz_conteos: pd.DataFrame, matriz_prob: pd.DataFrame) -> No
     with col1:
         section_title("Matriz de conteos")
         st.markdown('<div class="table-shell"><div class="table-caption"><span>Transiciones observadas</span><span>conteos</span></div>', unsafe_allow_html=True)
-        st.dataframe(matriz_conteos.style.background_gradient(cmap="Blues", axis=None), use_container_width=True)
+        st.dataframe(styled_numeric_matrix(matriz_conteos), width="stretch")
         st.markdown("</div>", unsafe_allow_html=True)
     with col2:
         section_title("Matriz de probabilidades")
         st.markdown('<div class="table-shell"><div class="table-caption"><span>Probabilidad por transición</span><span>porcentaje</span></div>', unsafe_allow_html=True)
-        st.dataframe(matriz_prob.style.format("{:.2%}").background_gradient(cmap="YlGnBu", axis=None), use_container_width=True)
+        st.dataframe(styled_numeric_matrix(matriz_prob, percent=True), width="stretch")
         st.markdown("</div>", unsafe_allow_html=True)
 
 
@@ -731,7 +775,7 @@ def render_simulacion(df_resultados: pd.DataFrame) -> None:
         data=df_resultados.to_csv(index=False).encode("utf-8-sig"),
         file_name="resultados_simulacion_colombia_comparte.csv",
         mime="text/csv",
-        use_container_width=True,
+        width="stretch",
     )
 
 
@@ -783,7 +827,7 @@ def render_mejora(df_resultados: pd.DataFrame, matriz_prob: pd.DataFrame, n_usua
         title="Comparativa antes vs. después de las mejoras",
     )
     plot_layout(fig, height=410)
-    st.plotly_chart(fig, use_container_width=True)
+    st.plotly_chart(fig, width="stretch")
 
 
 def main() -> None:
@@ -794,13 +838,13 @@ def main() -> None:
     matriz_prob = construir_matriz_probabilidades(matriz_conteos)
 
     with st.sidebar:
-        st.image(LOGO_PATH, use_container_width=True)
+        st.image(LOGO_PATH, width="stretch")
         st.markdown("## Colombia Comparte")
         st.caption("Flujo: Registro de emprendedores")
         n_usuarios = st.slider("Número de usuarios a simular", 10, 5000, 1000, step=10)
         max_pasos = st.slider("Número máximo de pasos por usuario", 5, 80, 40, step=1)
         seed = st.number_input("Semilla aleatoria", min_value=1, max_value=999999, value=2026, step=1)
-        ejecutar = st.button("Ejecutar simulación", use_container_width=True)
+        ejecutar = st.button("Ejecutar simulación", width="stretch")
 
         st.markdown("---")
         seccion = st.radio("Barra de navegación", ["Dashboard", "Modelo", "Simulación", "Mejora"], index=0)
