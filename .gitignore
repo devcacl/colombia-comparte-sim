@@ -1,0 +1,20 @@
+.venv/
+__pycache__/
+*.py[cod]
+*.pyo
+*.pyd
+.Python
+.env
+.env.*
+.streamlit/secrets.toml
+
+# Streamlit and local runtime artifacts
+.streamlit/cache/
+resultados_simulacion.png
+resultados_simulacion_colombia_comparte.csv
+
+# OS and editor files
+.DS_Store
+Thumbs.db
+.vscode/
+.idea/
