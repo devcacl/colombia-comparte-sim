@@ -2,6 +2,9 @@
 
 Final simulation project built with Python and Streamlit. The application models the Colombia Comparte entrepreneur registration flow using the exact states, base journeys, transition count matrix, transition probability matrix, simulation logic, and improvement proposal from `ProyectoFinalSimulacion.ipynb`.
 
+## 🌐 Live Demo
+👉 [Abrir aplicación](https://colombia-comparte-simulation.streamlit.app/?embed_options=light_theme)
+
 ## Technology Choice
 
 The interface uses **Streamlit** because it is the strongest fit for this project:
@@ -126,6 +129,3 @@ http://localhost:8501
    - **Simulación**: simulated user preview and full result table.
    - **Mejora**: critical state, recommendation, and improved scenario comparison.
 
-## Notes
-
-The notebook treats `S24` as an error state for final classification while also using transitions from `S24` to `S25` in the base journeys and improvement scenario. The app preserves that logic exactly to stay faithful to the original notebook.
